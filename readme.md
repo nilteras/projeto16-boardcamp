@@ -2,7 +2,7 @@
 
 ### It contains the following libraries as default dependencies:
 
-- [mongodb](https://www.npmjs.com/package/mongodb)
+- [postgres](https://www.npmjs.com/package/postgres)
 - [dotenv](https://www.npmjs.com/package/dotenv)
 - [joi](https://www.npmjs.com/package/joi)
 - [express](https://www.npmjs.com/package/express)
@@ -11,7 +11,6 @@
 
 ### Requirements
 
-- [mongodb version 6.0 or later](https://www.mongodb.com/)
 - [node.js](https://nodejs.org/en)
 
 ## Usage
