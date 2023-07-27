@@ -1,8 +1,10 @@
 import { Router } from "express";
-import homeRouter from "./home.routes.js";
+import gamesRouter from "./games.routes.js";
 
 const router = Router();
 
-router.use(homeRouter);
+router.use(gamesRouter);
+//router.use(customerRouter);
+//router.use(rentalsRouter);
 
 export default router;
