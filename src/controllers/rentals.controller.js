@@ -8,7 +8,7 @@ export async function findRentals(req, res) {
 
         const result = await db.query(`
         SELECT 
-        rentals.*,
+        rentals.id,"customerId","gameId","daysRented",to_char("returnDate", 'YYYY-MM-DD') as "returnDate","originalPrice","delayFee",
         customers.id AS customer_id,
         customers.name AS customer_name,
         games.id AS game_id,
@@ -85,13 +85,13 @@ export async function finishRentals(req, res) {
     try {
         const rentalId = await db.query("SELECT * FROM rentals WHERE id = $1", [id])
         
-        if(rentalId.rows.length === 0) return res.sendStatus(400)
+        if(rentalId.rows.length === 0) return res.sendStatus(404)
 
         if(rentalId.rows[0].returnDate !== null) return res.status(400).send("Aluguel já foi finalizado")
 
-        const newRentDate = new Date(rentalId.rows[0].rentDate)
+        let newRentDate = new Date(rentalId.rows[0].rentDate)
 
-        const difference = returnDateObj.getTime() - newRentDate.getTime()
+        let difference = returnDateObj.getTime() - newRentDate.getTime()
 
         const delayDays = Math.ceil(difference / (1000 * 3600 * 24))
 
