@@ -76,7 +76,40 @@ export async function insertRentals(req, res) {
 
 //POST finalizar aluguel
 export async function finishRentals(req, res) {
+
+    const { id } = req.params
+
+    const returnDate = dayjs().format("YYYY-MM-DD")
+    const returnDateObj = new Date()
+
     try {
+        const rentalId = await db.query("SELECT * FROM rentals WHERE id = $1", [id])
+        
+        if(rentalId.rows.length === 0) return res.sendStatus(400)
+
+        if(rentalId.rows[0].returnDate !== null) return res.status(400).send("Aluguel já foi finalizado")
+
+        const newRentDate = new Date(rentalId.rows[0].rentDate)
+
+        const difference = returnDateObj.getTime() - newRentDate.getTime()
+
+        const delayDays = Math.ceil(difference / (1000 * 3600 * 24))
+
+        const price = await db.query("SELECT * FROM games WHERE id=$1;", [rentalId.rows[0].gameId])
+
+        const realPrice = (price.rows[0].pricePerDay)
+
+        let delayFee = (delayDays - rentalId.rows[0].daysRented) * realPrice
+
+        if(delayFee > 0) {
+            await db.query(`UPDATE rentals SET "returnDate"=$1, "delayFee"=$2 WHERE id= $3;`, [returnDate, delayFee, id])
+            return res.status(200).send("Alguguel finalizado com taxa de atraso")
+        }else {
+            await db.query(`UPDATE rentals SET "returnDate"=$1 WHERE id= $2`, [returnDate, id])
+            return res.status(200).send("Aluguel finalizado sem taxa de atraso")
+        }
+
+
 
     } catch (err) {
         res.status(500).send(err.message)
@@ -86,7 +119,15 @@ export async function finishRentals(req, res) {
 //DELETE apagar aluguel
 export async function deleteReantals(req, res) {
 
+    const { id } = req.params
+
     try {
+        const rentalId = await db.query("SELECT * FROM rentals WHERE id = $1", [id])
+        if(rentalId.rows.length === 0) return res.sendStatus(404)
+
+        if(rentalId.rows[0].returnDate === null) res.status(400).send("Aluguel não foi finalizado anteriormente")
+
+        await db.query(`DELETE FROM rentals WHERE id=$1`, [id])
 
         res.sendStatus(200)
     } catch (err) {
