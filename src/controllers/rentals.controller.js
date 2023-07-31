@@ -1,5 +1,6 @@
 import dayjs from 'dayjs'
 import db from './../database/database.connection.js'
+import { format } from 'date-fns'
 
 //GET listar alugueis
 export async function findRentals(req, res) {
@@ -64,7 +65,7 @@ export async function insertRentals(req, res) {
         if(gameIdExist.rows[0].stockTotal <= gameAvailable.rows.length) res.status(400).send("Não a quantidade disponivel para aluguel")
 
         let originalPrice = daysRented * gameIdExist.rows[0].pricePerDay
-        const rentDate = dayjs().format('YYYY-MM-DD')
+        const rentDate = format(new Date(), 'yyyy-MM-dd')
         await db.query(`INSERT INTO rentals (
             "customerId", "gameId", "rentDate", "daysRented", "returnDate", "originalPrice", "delayFee")
             VALUES ($1, $2, $3, $4, $5, $6, $7);`, [customerId, gameId, rentDate, daysRented, null, originalPrice, null])
