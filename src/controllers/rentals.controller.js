@@ -66,6 +66,7 @@ export async function insertRentals(req, res) {
 
         let originalPrice = daysRented * gameIdExist.rows[0].pricePerDay
         const rentDate = format(new Date(), 'yyyy-MM-dd')
+        console.log(rentDate)
         await db.query(`INSERT INTO rentals (
             "customerId", "gameId", "rentDate", "daysRented", "returnDate", "originalPrice", "delayFee")
             VALUES ($1, $2, $3, $4, $5, $6, $7);`, [customerId, gameId, rentDate, daysRented, null, originalPrice, null])
@@ -93,13 +94,11 @@ export async function finishRentals(req, res) {
 
         let newRentDate = new Date(rentalId.rows[0].rentDate)
 
-       // let difference = returnDateObj.getTime() - newRentDate.getTime()
+        let difference = returnDateObj.getTime() - newRentDate.getTime()
 
-       // const delayDays = Math.ceil(difference / (1000 * 60 * 60 * 24))
+        const delayDays = Math.ceil(difference / (1000 * 60 * 60 * 24))
 
         const price = await db.query("SELECT * FROM games WHERE id=$1;", [rentalId.rows[0].gameId])
-
-        const delayDays = difDias(returnDateObj, newRentDate) > 0 ? difDias(returnDateObj, newRentDate) * perDay : 0;
 
         const realPrice = (price.rows[0].pricePerDay)
 
@@ -120,14 +119,6 @@ export async function finishRentals(req, res) {
     }
 }
 
-function difDias(d1, d2){
-    const data1 = new Date(d1)
-    const data2 = new Date(d2)
-
-    const dif = data2 - data1
-    const dias = dif / (1000 * 60 * 60 * 24);
-    return dias 
-}
 
 //DELETE apagar aluguel
 export async function deleteReantals(req, res) {
