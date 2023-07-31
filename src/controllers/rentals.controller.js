@@ -51,7 +51,8 @@ export async function findRentals(req, res) {
 export async function insertRentals(req, res) {
 
     const { customerId, gameId, daysRented } = req.body
-    let rentDate = dayjs().format()
+    // let rentDate = dayjs().format('YYYY-MM-DD')
+    // console.log(rentDate)
     try {
         const customerIdExist = await db.query("SELECT * FROM customers WHERE id=$1;", [customerId])
         if(customerIdExist.rows.length === 0) return res.status(400).send("Não existe nenhum cliente com esse ID")
@@ -63,7 +64,7 @@ export async function insertRentals(req, res) {
         if(gameIdExist.rows[0].stockTotal <= gameAvailable.rows.length) res.status(400).send("Não a quantidade disponivel para aluguel")
 
         let originalPrice = daysRented * gameIdExist.rows[0].pricePerDay
-
+        const rentDate = dayjs().format('YYYY-MM-DD')
         await db.query(`INSERT INTO rentals (
             "customerId", "gameId", "rentDate", "daysRented", "returnDate", "originalPrice", "delayFee")
             VALUES ($1, $2, $3, $4, $5, $6, $7);`, [customerId, gameId, rentDate, daysRented, null, originalPrice, null])
