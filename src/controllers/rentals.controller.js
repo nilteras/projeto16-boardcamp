@@ -91,11 +91,13 @@ export async function finishRentals(req, res) {
 
         let newRentDate = new Date(rentalId.rows[0].rentDate)
 
-        let difference = returnDateObj.getTime() - newRentDate.getTime()
+       // let difference = returnDateObj.getTime() - newRentDate.getTime()
 
-        const delayDays = Math.ceil(difference / (1000 * 3600 * 24))
+       // const delayDays = Math.ceil(difference / (1000 * 60 * 60 * 24))
 
         const price = await db.query("SELECT * FROM games WHERE id=$1;", [rentalId.rows[0].gameId])
+
+        const delayDays = difDias(returnDateObj, newRentDate) > 0 ? difDias(returnDateObj, newRentDate) * perDay : 0;
 
         const realPrice = (price.rows[0].pricePerDay)
 
@@ -114,6 +116,15 @@ export async function finishRentals(req, res) {
     } catch (err) {
         res.status(500).send(err.message)
     }
+}
+
+function difDias(d1, d2){
+    const data1 = new Date(d1)
+    const data2 = new Date(d2)
+
+    const dif = data2 - data1
+    const dias = dif / (1000 * 60 * 60 * 24);
+    return dias 
 }
 
 //DELETE apagar aluguel
